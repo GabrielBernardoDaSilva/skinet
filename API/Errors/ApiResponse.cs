@@ -4,8 +4,7 @@ namespace API.Errors
 {
     public class ApiResponse
     {
-        private int v;
-
+     
 
         public ApiResponse(int statusCode, string message = null)
         {
