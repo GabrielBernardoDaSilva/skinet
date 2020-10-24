@@ -37,7 +37,7 @@ namespace API.Controllers
 
         [HttpGet]
         public async Task<ActionResult<Pagination<Product>>> GetProducts(
-            [FromQuery]ProductSpecParams productParams)
+            [FromQuery] ProductSpecParams productParams)
         {
             var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
 
@@ -50,10 +50,9 @@ namespace API.Controllers
             var data = _mapper
                 .Map<IReadOnlyList<Product>, IReadOnlyList<ProductsToReturnDto>>(products);
 
-            if (products == null)
-                return NotFound(new ApiResponse(404));
 
-            return Ok( new Pagination<ProductsToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
+
+            return Ok(new Pagination<ProductsToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
         }
 
 
@@ -65,6 +64,10 @@ namespace API.Controllers
             var spec = new ProductsWithTypesAndBrandsSpecification(id);
 
             var product = await _productsRepo.GetEntityWithSpecs(spec);
+
+
+            if (product == null)
+                return NotFound(new ApiResponse(404));
             return Ok(_mapper.Map<Product, ProductsToReturnDto>(product));
         }
 
