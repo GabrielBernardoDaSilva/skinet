@@ -5,9 +5,11 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 import { CoreModule } from './core/core.module';
 import { ErrorInterceptor } from './core/Interceptors/error.interceptor';
+import { LoadInterceptor } from './core/Interceptors/load.interceptors';
 import { SharedModule } from './shared/shared.module';
 import { HomeModule } from './home/home.module';
 
@@ -24,10 +26,12 @@ import { HomeModule } from './home/home.module';
     HttpClientModule,
     SharedModule,
     CoreModule,
-    HomeModule
+    HomeModule,
+    NgxSpinnerModule
   ],
   providers: [
-    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true}
+    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: LoadInterceptor, multi: true},
   ],
   bootstrap: [AppComponent]
 })
