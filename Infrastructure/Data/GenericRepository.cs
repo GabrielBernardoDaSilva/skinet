@@ -14,6 +14,7 @@ namespace Infrastructure.Data
         public GenericRepository(StoreContext context)
         {
             _context = context;
+            _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         public async Task<T> GetByIdAsync(int id)
