@@ -70,10 +70,10 @@ namespace API.Controllers
         [HttpPut("address")]
         public async Task<ActionResult<AddressDto>> UpdateAddress(AddressDto address)
         {
-            var user =await _userManager.FindUserByClaimsPrincipleWithAddressAsync(HttpContext.User);
+            var user = await _userManager.FindUserByClaimsPrincipleWithAddressAsync(HttpContext.User);
             user.Address = _mapper.Map<AddressDto, Address>(address);
             var result = await _userManager.UpdateAsync(user);
-            if(result.Succeeded)
+            if (result.Succeeded)
                 return Ok(_mapper.Map<Address, AddressDto>(user.Address));
             else
                 return BadRequest("Problem with your address");
@@ -105,29 +105,33 @@ namespace API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
-            if (ModelState.IsValid)
+
+            if (CheckEmailExistAsync(registerDto.Email).Result.Value)
             {
-                var user = new AppUser
+                return new BadRequestObjectResult(new ApiValidationErrorResponse
                 {
-                    DisplayName = registerDto.DisplayName,
-                    Email = registerDto.Email,
-                    UserName = registerDto.Email,
-                };
-
-                var result = await _userManager.CreateAsync(user, registerDto.Password);
-
-                if (!result.Succeeded)
-                    return BadRequest(new ApiResponse(400));
-
-                return new UserDto
-                {
-                    DisplayName = user.DisplayName,
-                    Token = _tokenService.CreateToken(user),
-                    Email = user.Email
-
-                };
+                    Errors = new[] { "Email address is in use!" }
+                });
             }
-            return BadRequest(new ApiResponse(400));
+            var user = new AppUser
+            {
+                DisplayName = registerDto.DisplayName,
+                Email = registerDto.Email,
+                UserName = registerDto.Email,
+            };
+
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
+
+            if (!result.Succeeded)
+                return BadRequest(new ApiResponse(400));
+
+            return new UserDto
+            {
+                DisplayName = user.DisplayName,
+                Token = _tokenService.CreateToken(user),
+                Email = user.Email
+
+            };
         }
 
 
