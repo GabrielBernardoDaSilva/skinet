@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CdkStepperModule } from '@angular/cdk/stepper';
 
 import { PaginationModule } from 'ngx-bootstrap/pagination';
@@ -30,6 +30,7 @@ import { RouterModule } from '@angular/router';
     CarouselModule.forRoot(),
     BsDropdownModule.forRoot(),
     ReactiveFormsModule,
+    FormsModule,
     CdkStepperModule,
     RouterModule
   ],
@@ -40,6 +41,7 @@ import { RouterModule } from '@angular/router';
     PagerComponent,
     OrderTotalsComponent,
     ReactiveFormsModule,
+    FormsModule,
     BsDropdownModule,
     TextInputsComponent,
     CdkStepperModule,

@@ -20,6 +20,8 @@ namespace API.Extensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+            services.AddSingleton<IResponseCacheService, ResponseCacheService>();
+
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             services.Configure<ApiBehaviorOptions>(options =>
