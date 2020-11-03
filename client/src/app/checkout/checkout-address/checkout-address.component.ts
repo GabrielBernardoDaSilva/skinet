@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { AccountService } from 'src/app/account/account.service';
+import { IAddress } from 'src/app/shared/models/address';
 
 @Component({
     selector: 'app-checkout-address',
@@ -18,7 +19,10 @@ export class CheckoutAddressComponent implements OnInit {
     }
     saveUserAddress(): void {
         this.accountService.updateUserAddress(this.checkOutForm.get('addressForm').value).subscribe(
-            () => this.toastr.success('Address saved'),
+            (address: IAddress) => {
+                this.toastr.success('Address saved');
+                this.checkOutForm.get('addressForm').reset(address);
+            },
             error => {
                 console.log(error);
                 this.toastr.error(error.message);
