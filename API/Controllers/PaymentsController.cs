@@ -5,6 +5,7 @@ using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Stripe;
 using Order = Core.Entities.OrderAggregate.Order;
@@ -15,9 +16,10 @@ namespace API.Controllers
     {
         private readonly IPaymentService _payementService;
         private readonly ILogger<IPaymentService> _logger;
-        private const string WhSecret = "whsec_caYafsRGiN5hTUlB6geH27wgfAxXlUgt";
-        public PaymentsController(IPaymentService payementService, ILogger<IPaymentService> logger)
+        private readonly string _whSecret;
+        public PaymentsController(IPaymentService payementService, ILogger<IPaymentService> logger, IConfiguration config)
         {
+            _whSecret = config.GetSection("StripeSettings:WhSecret").Value;
             _logger = logger;
             _payementService = payementService;
         }
@@ -37,7 +39,7 @@ namespace API.Controllers
         public async Task<ActionResult> StripeWebhook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], WhSecret);
+            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], _whSecret);
 
             PaymentIntent intent;
             Order order;
@@ -53,7 +55,7 @@ namespace API.Controllers
 
                 case "payment_intent.payment_failed":
                     intent = (PaymentIntent)stripeEvent.Data.Object;
-                    _logger.LogInformation("Payment Failed: ",intent.Id);
+                    _logger.LogInformation("Payment Failed: ", intent.Id);
                     order = await _payementService.UpdateOrderPayementFailed(intent.Id);
                     _logger.LogInformation("Payment failed");
                     break;

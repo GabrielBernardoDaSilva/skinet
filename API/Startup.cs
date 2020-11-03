@@ -1,3 +1,4 @@
+using System.IO;
 using API.Extensions;
 using API.Helpers;
 using API.Middleware;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using StackExchange.Redis;
 
 namespace API
@@ -23,7 +25,38 @@ namespace API
         }
 
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+
+            services.AddDbContext<StoreContext>(options =>
+            {
+                options.UseSqlite(_configuration.GetConnectionString("Connection"));
+            });
+            services.AddDbContext<AppIdentityDbContext>(options =>
+            {
+                options.UseSqlite(_configuration.GetConnectionString("IdentityConnection"));
+            });
+
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+
+            services.AddDbContext<StoreContext>(options =>
+            {
+                options.UseMySql(_configuration.GetConnectionString("Connection"));
+            });
+            services.AddDbContext<AppIdentityDbContext>(options =>
+            {
+                options.UseMySql(_configuration.GetConnectionString("IdentityConnection"));
+            });
+
+            ConfigureServices(services);
+        }
+
+
+
         public void ConfigureServices(IServiceCollection services)
         {
 
@@ -48,7 +81,7 @@ namespace API
                 return ConnectionMultiplexer.Connect(configuration);
             });
 
-            
+
             services.ApplicationService();
 
             services.AddSwaggerDocumentation();
@@ -78,6 +111,15 @@ namespace API
 
             app.UseRouting();
             app.UseStaticFiles();
+            app.UseStaticFiles(
+                new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(
+                        Path.Combine(Directory.GetCurrentDirectory(), "Content")
+                    ),
+                    RequestPath = "/content"
+                }
+            );
 
             app.UseCors("CorsPolicy");
 
@@ -89,6 +131,7 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }
